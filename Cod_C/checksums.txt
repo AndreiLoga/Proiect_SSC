@@ -1,0 +1,7 @@
+8x8 grad in=eaa1ffc5 out=585b0b81
+8x8 rand in=ac219a97 out=c8eef4f8
+16x16 grad in=be5e25c5 out=f14dbccd
+16x16 rand in=564bfd47 out=047678fa
+128x128 rand in=f446ee5e out=9607334a
+256x256 rand in=69a207b5 out=a9986e0b
+512x512 rand in=c4a9261d out=26681436

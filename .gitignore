@@ -1,0 +1,34 @@
+# Visual Studio
+.vs/
+x64/
+Debug/
+Release/
+*.vcxproj.user
+*.exe
+*.obj
+*.pdb
+*.ilk
+
+# Vivado (se regenerează)
+*.cache/
+*.runs/
+*.sim/
+*.hw/
+*.gen/
+*.ip_user_files/
+.Xil/
+*.jou
+*.log
+*.str
+*.backup.*
+
+# Vitis (se regenerează)
+.metadata/
+.sdk/
+_ide/
+Debug/
+Release/
+export/
+
+
+docs/PROGRESS.md
