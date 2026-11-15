@@ -32,3 +32,6 @@ export/
 
 
 docs/PROGRESS.md
+
+# Proiect Vivado (se regenereaza; sursele sunt in Vivado_Comp/hdl)
+Vivado_Comp/conv2d_hw/
