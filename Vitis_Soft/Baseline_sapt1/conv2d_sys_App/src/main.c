@@ -16,10 +16,37 @@
 #include <stdint.h>
 #include "platform.h"
 #include "xil_printf.h"
-#include "xiltimer.h"   /* XTime_GetTime si COUNTS_PER_SECOND (BSP cu xiltimer) */
+#include "xiltimer.h"   /* COUNTS_PER_SECOND (BSP cu xiltimer) */
+#include "xil_io.h"
+#include "xparameters.h"
 #include "conv2d.h"
 
 #define MAX_N (512 * 512)
+
+/* Timerul global al Cortex-A9 (numarator crescator pe 64 de biti, la
+   frecventa CPU/2). Il citim direct, pentru ca XTime_GetTime din xiltimer
+   citeste timerul privat SCU, care e descrescator si ramane pe 0 daca nu
+   a rulat inainte un usleep (de aceea primele masuratori dadeau 0). */
+#define GTC_BASE      XPAR_PS7_GLOBALTIMER_0_BASEADDR
+#define GTC_COUNT_LO  (GTC_BASE + 0x00u)
+#define GTC_COUNT_HI  (GTC_BASE + 0x04u)
+#define GTC_CTRL      (GTC_BASE + 0x08u)
+
+static void gtc_start(void)
+{
+    Xil_Out32(GTC_CTRL, Xil_In32(GTC_CTRL) | 1u);   /* bit 0 = timer enable */
+}
+
+static uint64_t gtc_now(void)
+{
+    uint32_t hi, lo, hi2;
+    do {   /* citire sigura: reia daca partea superioara se schimba */
+        hi  = Xil_In32(GTC_COUNT_HI);
+        lo  = Xil_In32(GTC_COUNT_LO);
+        hi2 = Xil_In32(GTC_COUNT_HI);
+    } while (hi != hi2);
+    return ((uint64_t)hi << 32) | lo;
+}
 
 static uint8_t in_buf[MAX_N];
 static uint8_t out_buf[MAX_N];
@@ -54,6 +81,7 @@ int main()
     const uint64_t counts_per_sec = (uint64_t)(COUNTS_PER_SECOND);
 
     init_platform();
+    gtc_start();
 
     printf("\r\n=== Baseline ARM: convolutie 2D Gaussian 3x3 ===\r\n");
     printf("Timer global: %u Hz\r\n", (unsigned)counts_per_sec);
@@ -62,8 +90,7 @@ int main()
     for (i = 0; i < N_CASES; i++) {
         const test_case* t = &cases[i];
         int n = t->size * t->size;
-        XTime t0, t1;
-        uint64_t ticks, us_total;
+        uint64_t t0, t1, ticks;
         uint32_t us_per_img, ns_per_pix, chk_in, chk_out;
         int ok;
 
@@ -73,18 +100,19 @@ int main()
         /* o rulare de incalzire (cache), netinuta in calcul */
         conv_image(in_buf, out_buf, t->size, t->size);
 
-        XTime_GetTime(&t0);
+        t0 = gtc_now();
         for (k = 0; k < t->reps; k++) {
             conv_image(in_buf, out_buf, t->size, t->size);
         }
-        XTime_GetTime(&t1);
+        t1 = gtc_now();
 
         chk_out = checksum(out_buf, n);
 
-        ticks = (uint64_t)(t1 - t0);
-        us_total = ticks * 1000000ull / counts_per_sec;
-        us_per_img = (uint32_t)(us_total / (uint64_t)t->reps);
-        ns_per_pix = (uint32_t)(us_total * 1000ull / ((uint64_t)t->reps * (uint64_t)n));
+        /* un tic dureaza ~3 ns; ticks * 1e9 incape pe 64 de biti pana la ~55 s */
+        ticks = t1 - t0;
+        us_per_img = (uint32_t)(ticks * 1000000ull / counts_per_sec / (uint64_t)t->reps);
+        ns_per_pix = (uint32_t)(ticks * 1000000000ull / counts_per_sec
+                                / ((uint64_t)t->reps * (uint64_t)n));
 
         ok = (chk_in == t->exp_in) && (chk_out == t->exp_out);
         if (ok) passed++;
