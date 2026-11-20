@@ -1,28 +1,64 @@
 Imagini de test pentru P1 (convolutie 2D pe FPGA)
+=================================================
 
-Pe cardul SD, in radacina (FAT32), pune cele 4 fisiere din card_SD/:
-  img0.bmp  SW3=0 SW2=0   64x64, decupaj central din cameraman
-  img1.bmp  SW3=0 SW2=1   301x303, decupaj din coins (latime nemultiplu de 4,
-                          imagine nepatrata: testeaza padding-ul de rand)
-  img2.bmp  SW3=1 SW2=0   512x512, astronaut (NASA), grayscale
-  img3.bmp  SW3=1 SW2=1   512x512, cameraman
-(SW1 = 1 pentru modul card SD, SW0 = 0.)
+Acest folder contine imaginile folosite pentru a testa acceleratorul de
+convolutie 2D (Gaussian 3x3) in modul "card SD" al aplicatiei de pe placa
+Zybo Z7-20, precum si rezultatele asteptate.
 
-Aplicatia scrie rezultatul in REZULTAT.BMP pe card. Ca sa verifici pe laptop,
-compara-l cu fisierul din asteptat/ al aceleiasi imagini (img0_gauss.bmp etc.):
-trebuie sa fie identic octet cu octet daca hardware-ul este corect.
-(Calculat cu aceeasi functie ca in Cod_C: Gaussian 1 2 1 / 2 4 2 / 1 2 1,
-zero padding, shift cu 4, saturare 0..255; verificat identic cu conv2d.c.)
+Continut
+--------
+  card_SD/     cele 4 imagini de intrare, de copiat pe cardul SD
+  asteptat/    rezultatul corect al filtrarii pentru fiecare imagine
+  extra/       o imagine suplimentara (textura), optionala
+  previzualizare.png   vedere de ansamblu a imaginilor
 
-extra/extra_gravel.bmp: textura 512x512 cu detalii fine, la care se vede bine
-efectul de blur. Nu e legata de switch-uri; redenumeste-o img3.bmp ca s-o
-folosesti.
+Imaginile de intrare (card_SD/)
+-------------------------------
+Fisierele se copiaza in radacina cardului SD (FAT32). Aplicatia alege imaginea
+dupa switch-urile SW3 si SW2, citite in momentul apasarii lui BTN0; modul card
+SD se activeaza cu SW1 = 1 si SW0 = 0.
 
-Format: BMP grayscale 8 biti, necomprimat, cu paleta de 256 de nuante de gri,
-randuri de jos in sus, maxim 512x512 (cel citit de aplicatie).
+  fisier    SW3 SW2   dimensiune   sursa
+  img0.bmp   0   0    64x64        decupaj central din cameraman
+  img1.bmp   0   1    301x303      decupaj din coins; latimea nu e multiplu de 4
+                                   si imaginea nu e patrata, deci testeaza
+                                   padding-ul de rand al formatului BMP
+  img2.bmp   1   0    512x512      astronaut (NASA), grayscale
+  img3.bmp   1   1    512x512      cameraman
 
-Surse si licente (din scikit-image, pachetul Python):
+Imaginea suplimentara extra/extra_gravel.bmp este o textura 512x512 cu detalii
+fine, pe care efectul de blur se vede bine. Nu este asociata unei combinatii de
+switch-uri; pentru a fi folosita se copiaza pe card sub numele img0.bmp ..
+img3.bmp, in locul uneia dintre imagini.
+
+Rezultatul
+----------
+Aplicatia scrie rezultatul filtrarii in REZULTAT.BMP, in radacina cardului.
+Fisierul corespunzator din asteptat/ (img0_gauss.bmp .. img3_gauss.bmp,
+extra_gravel_gauss.bmp) contine rezultatul corect, calculat cu aceeasi functie
+ca in Cod_C: Gaussian 1 2 1 / 2 4 2 / 1 2 1, zero padding, impartire la 16
+prin shift cu 4 biti, saturare la 0..255. Rezultatul a fost verificat identic
+cu cel produs de conv2d.c.
+
+Daca hardware-ul este corect, datele de imagine din REZULTAT.BMP (de la
+offset-ul 1078, adica dupa antetul de 54 de octeti si paleta de 1024 de
+octeti) coincid octet cu octet cu cele din fisierul asteptat. Antetele difera
+in cei 8 octeti care retin rezolutia (aplicatia scrie 2835 pixeli/metru,
+fisierele din asteptat/ au 3780), deci o comparatie a intregului fisier va
+raporta aceasta diferenta, fara ca ea sa indice o eroare.
+
+Format
+------
+BMP grayscale pe 8 biti, necomprimat, cu paleta de 256 de nuante de gri,
+randurile stocate de jos in sus. Aplicatia accepta cel mult 512x512, deoarece
+acceleratorul din bitstream prelucreaza o imagine de 512x512; imaginile mai
+mici se plaseaza in coltul stanga-sus al unui canvas completat cu zero, care
+se comporta ca zero padding.
+
+Surse si licente
+----------------
+Imaginile provin din scikit-image (pachetul Python):
   cameraman: CC0, fotograf Lav Varshney
   astronaut: NASA, domeniu public (Eileen Collins)
-  coins: fara restrictii de copyright cunoscute
-  gravel: textura CC0 (CC0Textures)
+  coins:     fara restrictii de copyright cunoscute
+  gravel:    textura CC0 (CC0Textures)
