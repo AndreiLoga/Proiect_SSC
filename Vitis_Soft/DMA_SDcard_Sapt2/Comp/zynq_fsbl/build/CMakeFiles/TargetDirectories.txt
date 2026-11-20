@@ -1,0 +1,3 @@
+D:/000-UTCN/0-FACULTA_ANDREI/ANUL-3/SEM_1/SSC_P/Vitis_Soft/DMA_SDcard_Sapt2/Comp/zynq_fsbl/build/CMakeFiles/fsbl.elf.dir
+D:/000-UTCN/0-FACULTA_ANDREI/ANUL-3/SEM_1/SSC_P/Vitis_Soft/DMA_SDcard_Sapt2/Comp/zynq_fsbl/build/CMakeFiles/edit_cache.dir
+D:/000-UTCN/0-FACULTA_ANDREI/ANUL-3/SEM_1/SSC_P/Vitis_Soft/DMA_SDcard_Sapt2/Comp/zynq_fsbl/build/CMakeFiles/rebuild_cache.dir

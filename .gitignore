@@ -33,5 +33,6 @@ export/
 
 docs/PROGRESS.md
 
-# Proiect Vivado (se regenereaza; sursele sunt in Vivado_Comp/hdl)
-Vivado_Comp/conv2d_hw/
+# Proiectul Vivado (Vivado_Comp/conv2d_hw) este in Git; folderele generate
+# (.gen, .runs, .cache, .sim, .ip_user_files, .hw) sunt ignorate de regulile
+# de mai sus. Dupa clone: deschide .xpr si ruleaza Generate Output Products.

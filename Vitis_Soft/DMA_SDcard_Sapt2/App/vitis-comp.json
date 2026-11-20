@@ -1,0 +1,15 @@
+{
+  "name": "App",
+  "type": "HOST",
+  "platform": "D:\\000-UTCN\\0-FACULTA_ANDREI\\ANUL-3\\SEM_1\\SSC_P\\Vitis_Soft\\DMA_SDcard_Sapt2\\Comp\\export\\Comp\\Comp.xpfm",
+  "domain": "standalone_ps7_cortexa9_0",
+  "cpuInstance": "ps7_cortexa9_0",
+  "cpuType": "cortex-a9",
+  "os": "standalone",
+  "configuration": {
+    "componentType": "HOST",
+    "hostToolchainConfigurations": []
+  },
+  "domainRealName": "standalone_ps7_cortexa9_0",
+  "applicationFlow": "EMBEDDED"
+}
